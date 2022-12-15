@@ -1,10 +1,13 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+      <HeaderNav v-if="getLoginApiStatus"  
+        :nav-links="navLinks"/>
+      <router-view></router-view>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HeaderNav from '@/components/HeaderNavigation'
 
 export default {
   name: 'App',
@@ -22,5 +25,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  height: vh;
+  width: vw;
 }
 </style>
