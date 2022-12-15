@@ -12,7 +12,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import config from './config/config.js';
-import passport from 'passport';
+// import passport from 'passport';
 global.Blob             = function() {};
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,7 +50,7 @@ smapp.use(cookieParser());
 smapp.use(bodyParser.json({limit: '50mb'}));
 smapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 smapp.use(express.json({limit: '50mb'}));
-smapp.use(passport.initialize());
+// smapp.use(passport.initialize());
 
 if (config.environment === 'production') {
     smapp.use(express.static(__dirname + './client/dist'));
