@@ -9,4 +9,4 @@ const ec2Client = new EC2Client({
         region: 'us-east-2'
 });
 
-export { ec2Client, s3Client };
+export { ec2Client };
