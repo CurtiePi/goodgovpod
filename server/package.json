@@ -4,9 +4,11 @@
   "description": "",
   "main": "goodgovpod.js",
   "scripts": {
+    "start": "NODE_ENV=dev nodemon goodgovpod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "type": "module",
+  "author": "TheLoneliestMonk",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.231.0",
