@@ -17,7 +17,7 @@ export default {
     return Api().insecure.post('/contact/delete', payload)
   },
   sendEmail (payload) {
-    return Api().insecure.post('/api/email', payload)
+    return Api().insecure.post('/email', payload)
   },
   uploadFile (payload) {
     return Api().insecure.post('api/utils/upload', payload)
