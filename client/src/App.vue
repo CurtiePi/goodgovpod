@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <HeaderNav v-if="getLoginApiStatus"  
+      <HeaderNav  
         :nav-links="navLinks"/>
       <router-view></router-view>
   </div>
@@ -12,7 +12,7 @@ import HeaderNav from '@/components/HeaderNavigation'
 export default {
   name: 'App',
   components: {
-    HelloWorld
+   HeaderNav 
   }
 }
 </script>
