@@ -50,7 +50,6 @@ smapp.use(cookieParser());
 smapp.use(bodyParser.json({limit: '50mb'}));
 smapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 smapp.use(express.json({limit: '50mb'}));
-// smapp.use(passport.initialize());
 
 if (config.environment === 'production') {
     smapp.use(express.static(__dirname + './client/dist'));
