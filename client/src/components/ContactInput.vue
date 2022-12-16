@@ -78,7 +78,7 @@ export default {
   props: [ 'singleOp', 'payload' ],
   data () {
     return {
-      selectOptions: null,
+      contact: null,
       isEditing: false,
       form: {},
       origContactFields: {},
@@ -174,7 +174,7 @@ export default {
       this.clearInputs()
 
       var response = await AuthenticationService.createContact(payload)
-      var contact = response.data
+      this.contact = response.data
       console.log("Going to contact list.")
       this.$router.replace({ name: 'Contacts' })
     },
@@ -334,7 +334,7 @@ button {
   float: left;
   height: 100vh;
   overflow:hidden;
-  background: linear-gradient(to right, transparent 50%, #fff 50%), url('~@/assets/images/sailboat_one.jpg') no-repeat center;
+  background: linear-gradient(to right, transparent 50%, #fff 50%), url('~@/assets/goodgovpod.png') no-repeat center;
  background-size: cover;
  width: 60%;
 }
