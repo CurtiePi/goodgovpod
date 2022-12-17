@@ -18,14 +18,12 @@
         <div class="col-md-4">
           <i class="fa fa-clipboard"></i>
           <br/>
-          <span class="cust-notes">{{ contact_data.cnotes }}</span>
+          <span class="cust-notes">{{ contact_data.notes }}</span>
         </div>
       </div>
       <hr />
       <div class="row buttons">
         <button class="edit_btn" @click="timeToEdit()">Edit</button>
-        <button class="create_btn" @click="createQuote()">Create Request</button>
-        <button class="request_btn" @click="seeQuotes()">Requests</button>
         <button class="delete_btn" @click="deleteContact()">Delete</button>
         <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>
         <button @click="goBack()">Back</button>
@@ -36,11 +34,14 @@
 <script>
 import AuthenticationService from '@/services/AuthenticationService'
 import ConfirmDialogue from '@/components/ConfirmDialogue.vue'
+import { mapActions } from 'pinia'
+import { useParameterStore } from '@/stores/ParameterStore'
+const paramStore = useParameterStore()
 
 export default {
   name: 'contactProfile',
   components: { ConfirmDialogue },
-  props: ['payload', 'caller'],
+  props: [],
   data () {
     return {
       contact_data: null,
@@ -50,6 +51,7 @@ export default {
     }
   },
   methods: {
+  ...mapActions(useParameterStore, ["loadPayload", "clearPayload"]),
     timeToEdit () {
       let edit_data = JSON.stringify(this.contact_data)
       this.$router.replace({ name: 'ContactEdit', params: { 'payload': edit_data } })
@@ -108,20 +110,33 @@ export default {
       if (['Contacts'].includes(this.callerName)) {
         this.$router.replace({name: this.callerName})
       } else {
-        let payload = JSON.stringify(this.contact)
-        this.$router.replace({ name: this.callerName[0], params: { 'payload': JSON.stringify(payload), 'caller': this.callerName.splice(1) } })
+        let payload = { 'contact': JSON.stringify(this.contact),
+                        'caller': this.callerName.splice(1)
+                      }
+        
+        paramStore.loadPayload(payload)
+        this.$router.replace({ name: this.callerName[0]})
       }
     }
   },
   mounted () {
+    if (paramStore.payload) {
+      let payload = paramStore.payload
+      this.contact_data = JSON.parse(payload.contact)
+      this.caller = payload.caller
+      paramStore.clearPayload()
+    }
+/*
     if (this.payload) {
       this.contact_data = JSON.parse(this.$route.params.payload)
     }
     if (this.caller) {
       this.callerName = this.caller
     }
+*/
     this.isFetching = false
   }
+
 }
 </script>
 <style scoped>
