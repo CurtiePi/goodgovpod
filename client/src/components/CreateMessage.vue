@@ -79,10 +79,13 @@
 <script>
 import AuthenticationService from '@/services/AuthenticationService'
 import Editor from '@tinymce/tinymce-vue'
+import { useParameterStore } from '@/stores/ParameterStore'
+import { mapActions } from 'pinia'
+const paramStore = useParameterStore()
 
 export default {
   name: 'customerMessage',
-  props: ['targets', 'attachment', 'caller', 'cbdata', 'isBulk'],
+  props: ['attachment', 'cbdata', 'isBulk'],
   components: {
     'editor': Editor
   },
@@ -106,6 +109,7 @@ export default {
   computed: {
   },
   methods: {
+    ...mapActions(useParameterStore, ["loadPayload", "clearPayload"]),
     adjustTextarea (event) {
       let target = event.target
       target.style.height = "20px"
@@ -143,6 +147,10 @@ export default {
         this.$router.replace({ name: 'SelectCustomers', params: { 'payload': this.message } })
       }
     },
+
+    /*
+     * No need for attachments at this stage
+     *
     getAttachment: function () {
       document.getElementById('myFileInput').click()
     },
@@ -166,16 +174,17 @@ export default {
         reader.readAsDataURL(file)
     },
     removeAttachment: function (filename) {
-      this.attachments_list = this.attachments_list.filter((elem) => elem !== filename)
-      delete this.message.attachments[filename]
-      this.canAttach = this.attachments_list.length === 0
+      // this.attachments_list = this.attachments_list.filter((elem) => elem !== filename)
+      // delete this.message.attachments[filename]
+      // this.canAttach = this.attachments_list.length === 0
     },
     loadSentAttachment: async function (filename) {
-      var response = await AuthenticationService.pdfView(filename)
-      this.message.attachments[filename] = response.data
-      this.attachments_list = Object.keys(this.message.attachments)
-      this.canAttach = this.attachments_list.length === 0
+      // var response = await AuthenticationService.pdfView(filename)
+      // this.message.attachments[filename] = response.data
+      // this.attachments_list = Object.keys(this.message.attachments)
+      // this.canAttach = this.attachments_list.length === 0
     },
+     */
     leavePage: function () {
       if (['Quotes', 'Customers', 'StaffList'].includes(this.callerName)) {
         this.$router.replace({ name: this.callerName })
@@ -185,14 +194,33 @@ export default {
     }
   },
   mounted () {
-    if (this.targets) {
-      this.recipients = this.targets.join(',')
+    if (paramStore.payload) {
+      let payload = paramStore.payload
+      this.recipients = payload.targets.join(',')
+      this.caller = payload.caller
+      paramStore.clearPayload()
     }
+
+    /*
+    if (this.targets) {
+      //this.recipients = this.payload.join(',')
+      this.recipients = this.targets
+      console.log(`Recipients: ${this.recipients}`)
+    }
+    else {
+      console.log("No targets received!!")
+    }
+    
+     *
+     * Not using attachements, however this might change
+     *
     if (this.attachment) {
       this.loadSentAttachment(this.attachment)
     } else {
       this.canAttach = true
     }
+
+
     if (this.isBulk) {
       this.isBulkEmail = true
     }
@@ -202,6 +230,7 @@ export default {
         this.callback_data = this.cbdata
       }
     }
+    */
   }
 }
 </script>
