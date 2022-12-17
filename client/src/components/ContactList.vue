@@ -26,11 +26,27 @@
       <tr v-for="contact in contact_display"
              :key="contact._id">
         <th scope="row">
-          <router-link :to="{ name: 'ContactProfile', params: { 'payload': JSON.stringify(contact), 'caller': 'Contacts' } }">
+            <a 
+                href="javascript:void(0)"
+                @click="linkTo('ContactProfile', {'contact': JSON.stringify(contact), 'caller': 'Contacts'})">
+                {{ contact.fname }}  {{ contact.lname }}
+            </a>
+          <!-- router-link :to="{ name: 'ContactProfile',
+                        params: { 'payload': JSON.stringify(contact), 'caller': 'Contacts' } }">
             {{ contact.fname }}  {{ contact.lname }}
-          </router-link>
+          </router-link -->
         </th>
-        <td data-title="Email"><router-link :to="{ name: 'CreateMessage', params: { 'targets': [contact.email], 'caller': 'Contacts' } }">{{ contact.email }}</router-link></td>
+        <td data-title="Email">
+            <a 
+                href="javascript:void(0)"
+                @click="linkTo('CreateMessage', {'targets': [contact.email], 'caller': 'Contacts'})">
+                {{ contact.email }}
+            </a>
+            <!-- router-link :to="{ name: 'CreateMessage',
+                        params: { 'targets': [contact.email], 'caller': 'Contacts' } }">
+                {{ contact.email }}
+            </router-link -->
+        </td>
         <td data-title="Phone">{{ contact.phone }}</td>
         <td data-title="Phone">{{ contact.notes }}</td>
       </tr>
@@ -41,6 +57,9 @@
 
 <script>
 import AuthenticationService from '@/services/AuthenticationService'
+import { mapActions } from 'pinia'
+import { useParameterStore } from '@/stores/ParameterStore'
+const paramStore = useParameterStore()
 
 export default {
   name: 'contactList',
@@ -58,6 +77,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useParameterStore, ["loadPayload"]),
     getContacts: async function () {
       let response = await AuthenticationService.listContacts()
       
@@ -85,6 +105,10 @@ export default {
       }
 
       this.applyFilters()
+    },
+    linkTo: function(componentName, payload) {
+        paramStore.loadPayload(payload)
+        this.$router.replace({name: componentName})
     },
     applyFilters: function () {
       var filterObj = {}
