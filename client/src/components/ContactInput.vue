@@ -1,7 +1,7 @@
 <template>
   <section>
     <div class="left-panel">
-      <span class="header mx-4 mt-5"><h1>{{ headerText }}</h1></span>
+      <span class="header mx-4 mt-5 p-5">{{ headerText }}</span>
     </div>
     <div class="right-panel">
       <form class="form-style-7">
@@ -72,12 +72,16 @@
 </template>
 <script>
 import AuthenticationService from '@/services/AuthenticationService'
+import { mapActions } from 'pinia'
+import { useParameterStore } from '@/stores/ParameterStore'
+const paramStore = useParameterStore()
 
 export default {
   name: 'contactForm',
-  props: [ 'singleOp', 'payload' ],
+  props: [],
   data () {
     return {
+      callerName: [],
       contact: null,
       isEditing: false,
       form: {},
@@ -100,6 +104,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useParameterStore, ["loadPayload", "clearPayload"]),
     adjustTextarea () {
       this.$refs.bio.style.height = "20px"
       this.$refs.bio.style.height = (this.$refs.bio.scrollHeight) + "px"
@@ -116,7 +121,15 @@ export default {
     },
     cancel () {
       if (this.isEditing) {
-        this.$router.replace({name: 'ContactProfile', params: {'payload': JSON.stringify(this.contact)}})
+        let caller = this.callerName.shift()
+
+        let payload = {'contactData': JSON.stringify(this.contact),
+                       'caller': this.callerName
+                      }
+
+        paramStore.loadPayload(payload)
+
+        this.$router.replace({ name: caller })
       } else {
         this.$router.replace({name: 'Contacts'})
       }
@@ -198,12 +211,14 @@ export default {
     }
   },
   mounted () {
-    if (this.payload) {
-      console.log("Mounting the Contact Input!")
+    if (paramStore.notEmpty) {
+      let payload = paramStore.payload
       this.isEditing = true
-      this.contact = JSON.parse(this.$route.params.payload)
+      this.contact = JSON.parse(payload.contactData)
+      this.callerName = payload.caller
+      paramStore.clearPayload()
+      this.loadInputs()
     }
-    this.loadInputs()
   }
 }
 </script>
@@ -334,21 +349,25 @@ button {
   float: left;
   height: 100vh;
   overflow:hidden;
-  background: linear-gradient(to right, transparent 50%, #fff 50%), url('~@/assets/goodgovpod.png') no-repeat center;
+  background: linear-gradient(to right, transparent 50%, #fff 50%), url('~@/assets/good_governance.jpg') no-repeat center;
  background-size: cover;
  width: 60%;
 }
 
 .right-panel {
   position: absolute;
-  left: 25%;
+  left: 35%;
   height: 100vh;
   max-width:100vw;
-  width:75%;
+  width:70%;
   overflow-x: hidden;
 }
 
 .header {
-  float: left;  
+  position: relative;
+  top: 55%;
+  float: left; 
+  font-size: 3em;
+  font-weight: bold;
 }
 </style>
