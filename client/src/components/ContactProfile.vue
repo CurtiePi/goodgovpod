@@ -55,25 +55,12 @@ export default {
   methods: {
   ...mapActions(useParameterStore, ["loadPayload", "clearPayload"]),
     timeToEdit () {
-      let edit_data = JSON.stringify(this.contact_data)
-      this.$router.replace({ name: 'ContactEdit', params: { 'payload': edit_data } })
-    },
-    async update_contact () {
-      let data = {}
+      let payload = { 'contactData': JSON.stringify(this.contact_data),
+                      'caller': ['ContactProfile', ...this.callerName ]
+                    }
 
-      for (var idx = 0; idx < this.inputFields.length; idx++) {
-        var inputField = this.inputFields[idx]
-        if (this.hasValue(inputField)) {
-          data[inputField.name] = inputField.value
-        }
-      }
-      let payload = {
-        criteria: {'_id': this.contact_data._id},
-        update: data}
-
-      document.getElementsByClassName('editor')[0].style.display = 'none'
-      let response = await AuthenticationService.updateContact(payload)
-      this.contact_data = response.data
+      paramStore.loadPayload(payload)
+      this.$router.replace({ name: 'ContactEdit' })
     },
     hasValue (inputField) {
       return inputField.value != null &&
@@ -121,7 +108,7 @@ export default {
       if (['Contacts'].includes(caller)) {
         this.$router.replace({name: caller})
       } else {
-        let payload = { 'contact': JSON.stringify(this.contact),
+        let payload = { 'contactData': JSON.stringify(this.contact),
                         'caller': this.callerName
                       }
         
