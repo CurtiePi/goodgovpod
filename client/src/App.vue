@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-      <HeaderNav  
-        :nav-links="navLinks"/>
+      <HeaderNav />
       <router-view></router-view>
   </div>
 </template>
