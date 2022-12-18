@@ -91,16 +91,18 @@ export default {
         title: `Delete Contact ${name}`,
         okButton: 'I\'m Sure! Delete!',
         cancelButton: 'Cancel',
-        message: `Deleting contact ${name} will also delete their ${this.contact_data.quotes.length} request(s)!<p><strong>This action cannot be undone! Are you sure?</strong></p>`,
+        message: `Deleting contact ${name} will delete all of their information!<p><strong>This action cannot be undone! Are you sure?</strong></p>`,
         verification: 'delete'
       }
 
       const ok = await this.$refs.confirmDialogue.show(options)
 
       if (ok) {
+
         let payload = {
           'contact': this.contact_data
         }
+
         let response = await AuthenticationService.deleteContact(payload)
 
         if (response.status === 200) {
@@ -108,6 +110,7 @@ export default {
         } else {
           console.log(`Response: ${response.message}`)
         }
+
       } else {
         console.log('You have chosen not to delete this contact!!')
       }
@@ -135,14 +138,6 @@ export default {
       
       paramStore.clearPayload()
     }
-/*
-    if (this.payload) {
-      this.contact_data = JSON.parse(this.$route.params.payload)
-    }
-    if (this.caller) {
-      this.callerName = this.caller
-    }
-*/
     this.isFetching = false
   }
 
