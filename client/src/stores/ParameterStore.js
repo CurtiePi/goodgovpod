@@ -5,7 +5,7 @@ export const useParameterStore = defineStore("ParameterStore", {
     state: () => {
 
         return {
-            payload: {}
+            payload: null 
         }
     },
    
@@ -15,9 +15,11 @@ export const useParameterStore = defineStore("ParameterStore", {
         },
 
         clearPayload() {
-            this.payload = {}
+            this.payload = null
         }
-    }
+    },
 
-    //getters
+    getters: {
+        notEmpty: (state) => (state.payload != null),
+    }
 })
