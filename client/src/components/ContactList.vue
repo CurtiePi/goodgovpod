@@ -2,15 +2,30 @@
   <div class="container-xl">
     <h1>Contact List</h1>
       <div class="row">
-        <div class="col-md-4 col-sm-12 col-xs-12">
-        <ul class="fancy m-5">
-          <li class="fancy">
-            <label for="nameFilter">Name Filter</label>
-            <input type="text" v-model="f_name" @input="filterName()" />
-            <span>Filter on a name</span>
-          </li>
-        </ul>
+        <!-- div class="col-md-12 col-sm-12 col-xs-12 row inline align-middle" -->
+        <div class="d-flex flex-col">
+            <div class="p-2">
+            <ul class="fancy m-5">
+                <li class="fancy">
+                    <label for="nameFilter">Name Filter</label>
+                    <input type="text" v-model="f_name" @input="filterName()" />
+                    <span>Filter on a name</span>
+                </li>
+            </ul>
+            </div>
+            <div class="p-1 mt-5">
+            <span class="m-5">Message Contacts:&nbsp;</span>
+            <ToggleButton
+               @toggleChange="toggleSelectBoxes" />
+            <span v-if="allowSendMail">
+                <button class="btn btn-info ms-5" type="button"
+                         @click="createMessage()">
+                    Send Mail
+                </button>
+            </span>
+            </div>
         </div>
+        <span v-if="errorMsg" class="errorMsg">{{ errorMsg }}</span>
     </div>
   <table class="responsive-table">
     <!-- caption>Top 10 Grossing Animated Films of All Time</caption -->
@@ -20,6 +35,13 @@
         <th scope="col">Email</th>
         <th scope="col">Phone</th>
         <th scope="col">Notes</th>
+        <th scope="col" v-if="boxActive">
+          <label>
+            <input type="checkbox" name="select_all" 
+              :checked="allSelected"
+              @input="selectAll()" /> Select All
+          </label> 
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -28,27 +50,21 @@
         <th scope="row">
             <a 
                 href="javascript:void(0)"
-                @click="linkTo('ContactProfile', {'contact': JSON.stringify(contact), 'caller': 'Contacts'})">
+                @click="linkTo('ContactProfile', {'contactData': JSON.stringify(contact), 'caller': ['Contacts']})">
                 {{ contact.fname }}  {{ contact.lname }}
             </a>
-          <!-- router-link :to="{ name: 'ContactProfile',
-                        params: { 'payload': JSON.stringify(contact), 'caller': 'Contacts' } }">
-            {{ contact.fname }}  {{ contact.lname }}
-          </router-link -->
         </th>
         <td data-title="Email">
             <a 
                 href="javascript:void(0)"
-                @click="linkTo('CreateMessage', {'targets': [contact.email], 'caller': 'Contacts'})">
+                @click="linkTo('CreateMessage', {'targets': [contact.email], 'caller': ['Contacts'] })">
                 {{ contact.email }}
             </a>
-            <!-- router-link :to="{ name: 'CreateMessage',
-                        params: { 'targets': [contact.email], 'caller': 'Contacts' } }">
-                {{ contact.email }}
-            </router-link -->
         </td>
         <td data-title="Phone">{{ contact.phone }}</td>
         <td data-title="Phone">{{ contact.notes }}</td>
+        <td v-if="boxActive"><input type="checkbox" name="selectees" :value="contact.email" 
+                v-model="selectees" /></td>
       </tr>
     </tbody>
   </table>
@@ -56,6 +72,7 @@
 </template>
 
 <script>
+import ToggleButton from '@/components/ToggleButton.vue'
 import AuthenticationService from '@/services/AuthenticationService'
 import { mapActions } from 'pinia'
 import { useParameterStore } from '@/stores/ParameterStore'
@@ -63,11 +80,16 @@ const paramStore = useParameterStore()
 
 export default {
   name: 'contactList',
+  components: { ToggleButton},
+  props: [],
   data () {
     return {
+      boxActive: false,
       contacts: [],
       contact_display: [],
       f_name: null,
+      errorMsg: '',
+      selectees: [],
       f_registry: {
         nameFilter: {
           filter: [],
@@ -76,8 +98,17 @@ export default {
       }
     }
   },
+  computed: {
+    allowSendMail() {
+        return this.boxActive && (0 < this.selectees.length)
+    },
+
+    allSelected() {
+        return this.selectees.length == this.contact_display.length
+    }
+  },
   methods: {
-    ...mapActions(useParameterStore, ["loadPayload"]),
+    ...mapActions(useParameterStore, ["loadPayload", "clearPayload"]),
     getContacts: async function () {
       let response = await AuthenticationService.listContacts()
       
@@ -92,8 +123,7 @@ export default {
       return (a.lname < b.lname) ? -1 : (a.name > b.name) ? 1 : 0
     },
     sortList () {
-      var ftn
-      ftn = this.alphanumericSort
+      let ftn = this.alphanumericSort
       this.contact_display.sort(ftn)
     },
     filterName: function () {
@@ -110,13 +140,46 @@ export default {
         paramStore.loadPayload(payload)
         this.$router.replace({name: componentName})
     },
-    applyFilters: function () {
-      var filterObj = {}
-      var haveEmptyFilter = false
-      var hasActiveFilters = false
+    toggleSelectBoxes(value) {
+        this.boxActive = value 
+    },
+    selectAll: function () {
+      let isSelectAll = document.getElementsByName('select_all')[0].checked
+      let inputs = document.getElementsByName('selectees')
 
-      for (var key in this.f_registry) {
-        var filterLength = this.f_registry[key].filter.length
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].checked = isSelectAll
+        if (isSelectAll) {
+          if (!this.selectees.includes(inputs[i].value) && inputs[i].value !== '') {
+            this.selectees.push(inputs[i].value)
+          }
+        } else {
+          let idx = this.selectees.indexOf(inputs[i].value)
+          this.selectees.splice(idx, 1)
+        }
+      }
+    },
+    createMessage: function () {
+      if (this.selectees.length > 0) {
+        let payload = { 'targets': this.selectees,
+                         'isBulk': this.selectees.length > 5,
+                         'caller': ['Contacts']
+                      }
+
+        paramStore.loadPayload(payload)
+
+        this.$router.push({ name: 'CreateMessage' })
+      } else {
+        this.errorMsg = 'Please select recipients before trying to email your message!'
+      }
+    },
+    applyFilters: function () {
+      let filterObj = {}
+      let haveEmptyFilter = false
+      let hasActiveFilters = false
+
+      for (let key in this.f_registry) {
+        let filterLength = this.f_registry[key].filter.length
         if (this.f_registry[key].status && filterLength > 0) {
           filterObj[key] = this.f_registry[key].filter
           hasActiveFilters = true
@@ -131,7 +194,7 @@ export default {
           //this.contact_display = []
           this.contact_display = this.contacts
         } else {
-          var result = Object
+          let result = Object
             .values(filterObj)
             .reduce((a, b) => b.filter(Set.prototype.has, new Set(a)))
 
@@ -143,8 +206,10 @@ export default {
     }
   },
   mounted () {
-    if (this.$route.params.payload) {
-      this.loadContactData(JSON.parse(this.$route.params.payload))
+    if (paramStore.notEmpty) {
+      let payload = paramStore.payload
+      this.loadContactData(JSON.parse(payload.contactData))
+      paramStore.clearPayload()
     } else {
       this.getContacts()
     }
@@ -180,6 +245,12 @@ a {
   &:focus {
     color: rgba(4,106,56,1); 
   }
+}
+
+.errorMsg {
+  font-weight: bold;
+  color: #FF0000;
+  font-size: 12px;
 }
 
 ul.fancy {
