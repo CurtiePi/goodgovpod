@@ -9,9 +9,11 @@
       <br />
       <p><i class="fa fa-phone"></i>{{ contact_data.phone }}</p>
       <p><i class="fa fa-envelope"></i>
-        <router-link :to="{ name: 'CreateMessage', params: { 'targets': [contact_data.email], 'caller': ['ContactProfile', callerName], 'cbdata': JSON.stringify(contact_data) } }">
-            {{ contact_data.email }}
-        </router-link>
+      <a 
+        href="javascript:void(0)"
+        @click="linkTo('CreateMessage', {'targets': [contact_data.email], 'caller': ['ContactProfile', ...callerName], 'contactData': JSON.stringify(contact_data) })">
+          {{ contact_data.email }}
+      </a>
       </p>
       <hr />
       <div class="row col-md 12">
@@ -46,7 +48,7 @@ export default {
     return {
       contact_data: null,
       isEditing: false,
-      callerName: 'Contacts',
+      callerName: [],
       isFetching: true 
     }
   },
@@ -78,6 +80,10 @@ export default {
         inputField.value !== undefined &&
         inputField.value !== ''
     },
+    linkTo: function(componentName, payload) {
+        paramStore.loadPayload(payload)
+        this.$router.replace({name: componentName})
+    },
     async deleteContact () {
       let name = `${this.contact_data.fname} ${this.contact_data.lname}`
 
@@ -107,23 +113,26 @@ export default {
       }
     },
     goBack () {
-      if (['Contacts'].includes(this.callerName)) {
-        this.$router.replace({name: this.callerName})
+      let caller = this.callerName.shift()
+
+      if (['Contacts'].includes(caller)) {
+        this.$router.replace({name: caller})
       } else {
         let payload = { 'contact': JSON.stringify(this.contact),
-                        'caller': this.callerName.splice(1)
+                        'caller': this.callerName
                       }
         
         paramStore.loadPayload(payload)
-        this.$router.replace({ name: this.callerName[0]})
+        this.$router.replace({ name: caller })
       }
     }
   },
   mounted () {
-    if (paramStore.payload) {
+    if (paramStore.notEmpty) {
       let payload = paramStore.payload
-      this.contact_data = JSON.parse(payload.contact)
-      this.caller = payload.caller
+      this.contact_data = JSON.parse(payload.contactData)
+      this.callerName = payload.caller
+      
       paramStore.clearPayload()
     }
 /*
