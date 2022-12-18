@@ -85,7 +85,7 @@ const paramStore = useParameterStore()
 
 export default {
   name: 'customerMessage',
-  props: ['attachment', 'cbdata', 'isBulk'],
+  props: ['attachment'],
   components: {
     'editor': Editor
   },
@@ -100,7 +100,7 @@ export default {
       errorMsg: null,
       recipients: null,
       callback_data: null,
-      callerName: 'Customers',
+      callerName: [],
       isBulkEmail: false,
       canAttach: false,
       attachments_list: []
@@ -186,19 +186,30 @@ export default {
     },
      */
     leavePage: function () {
-      if (['Quotes', 'Customers', 'StaffList'].includes(this.callerName)) {
-        this.$router.replace({ name: this.callerName })
+      let caller = this.callerName.shift()
+      
+      if (['Contacts'].includes(caller)) {
+        paramStore.clearPayload()
+
+        this.$router.replace({ name: caller })
+        
       } else {
-        this.$router.replace({ name: this.callerName[0], params: { 'payload': JSON.stringify(this.callback_data), 'caller': this.callerName.splice(1) } })
+        let payload = paramStore.payload
+        payload['caller'] = this.callerName
+
+        paramStore.loadPayload(payload)
+        this.$router.replace({ name: caller })
       }
     }
   },
   mounted () {
-    if (paramStore.payload) {
+    if (paramStore.notEmpty) {
       let payload = paramStore.payload
       this.recipients = payload.targets.join(',')
-      this.caller = payload.caller
-      paramStore.clearPayload()
+      this.callerName = payload.caller
+      if (payload.isBulk) {
+        this.isBulkEmail = payload.isBulk
+      }
     }
 
     /*
