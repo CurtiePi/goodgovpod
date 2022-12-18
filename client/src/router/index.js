@@ -35,12 +35,6 @@ const routes = [
       component: () => import('../components/CreateMessage.vue'),
       props: true
     },
-    {
-      path: '/select_contacts',
-      name: 'SelectContacts',
-      component: () => import('../components/ContactSelect.vue'),
-      props: true
-    },
   ]
 
 const routerHistory = createWebHistory();
