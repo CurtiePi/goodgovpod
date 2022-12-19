@@ -62,7 +62,7 @@
             </a>
         </td>
         <td data-title="Phone">{{ contact.phone }}</td>
-        <td data-title="Phone">{{ contact.notes }}</td>
+        <td data-title="Notes" :style="{'width': '45%'}">{{ contact.notes }}</td>
         <td v-if="boxActive"><input type="checkbox" name="selectees" :value="contact.email" 
                 v-model="selectees" /></td>
       </tr>
@@ -162,7 +162,7 @@ export default {
     createMessage: function () {
       if (this.selectees.length > 0) {
         let payload = { 'targets': this.selectees,
-                         'isBulk': this.selectees.length > 5,
+                         'isBulk': this.selectees.length > 1,
                          'caller': ['Contacts']
                       }
 
@@ -397,6 +397,7 @@ a {
     padding: 0;
     text-align: left;
     white-space: normal;
+    word-wrap: break-word;
   }
   
   tr {   
@@ -495,6 +496,7 @@ a {
     
     td {
       text-align: right;
+      word-wrap: break-word;
       
       @media (min-width: $bp-bart) {
         border-left: 1px solid rgba(134,188,37,1);
