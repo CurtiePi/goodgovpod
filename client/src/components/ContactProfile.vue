@@ -16,11 +16,12 @@
       </a>
       </p>
       <hr />
-      <div class="row col-md 12">
-        <div class="col-md-4">
+      <div class="d-flex flex-row">
+        <div>
           <i class="fa fa-clipboard"></i>
-          <br/>
-          <span class="cust-notes">{{ contact_data.notes }}</span>
+        </div>
+        <div>
+            <span class="cust-notes">{{ contact_data.notes }}</span>
         </div>
       </div>
       <hr />
@@ -136,7 +137,7 @@ export default {
   .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     max-width: 300px;
-    width: 80%;
+    width: 50%;
     margin: auto;
     text-align: center;
     flex-direction: column;
@@ -165,7 +166,7 @@ export default {
 
 .card {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  width: 80%;
+  width: 50%;
   margin: auto;
   margin-top: 10%;
   background-color: #F5F5DC;
@@ -186,6 +187,7 @@ export default {
 .cust-notes {
     white-space: pre-wrap;
     margin-top: 5 px;
+    margin-left: 5 px;
     font-size: 1.2em;
 }
 
