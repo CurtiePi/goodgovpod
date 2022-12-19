@@ -4,15 +4,10 @@ import smtpTransport from 'nodemailer-smtp-transport';
 import signature from '../config/signature.js';
 
 const transporter = nodemail.createTransport(smtpTransport({
-    host: "smtp-mail.outlook.com",
-    secureConnection: false,
-    port: 587,
+    service: 'gmail',
     auth: {
         user: config.mail.office,
         pass: config.mail.access
-    },
-    tls: {
-        ciphers: 'SSLv3'
     }
 }));
 
@@ -23,18 +18,13 @@ const deliverEmail = (req, res, next) => {
     var recipients = data.recipients.join(', ');
 
     var mailOptions = {
-        from: 'dave@uksailmakers-ne.com;',
-        subject: data.subject,
+        from: 'info.goodgovpodcast@gmail.com;',
+        subject: `${data.subject} - DO NOT REPLY`,
         html: messageBody,
         attachments: [{
-            filename: 'sailmakers_logo.jpg',
-            path: './public/images/sailmakers_logo.jpg',
-            cid: 'dave@uk-sailmakers-ne.com'
-        },
-        {
-            filename: 'signature.png',
-            path: './public/images/signature.jpg',
-            cid: 'dave-signature'
+            filename: 'goodgovpod.png',
+            path: './public/images/goodgovpod.png',
+            cid: 'info.goodgovpodcast@gmail.com'
         },
         ]
     };
