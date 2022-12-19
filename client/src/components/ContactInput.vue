@@ -158,7 +158,16 @@ export default {
         var response = await AuthenticationService.updateContact(payload)
         this.contact = response.data
         this.clearInputs()
-        this.$router.replace({ name: 'ContactProfile', params: {'payload': JSON.stringify(this.contact)} })
+
+        let caller = this.callerName.shift()
+
+        payload = { 'contactData': JSON.stringify(this.contact),
+                    'caller': this.callerName
+                  }
+
+        paramStore.loadPayload(payload)
+        
+        this.$router.replace({ name: caller})
       } else {
         var message = 'No values have been changed!\nChange a value before updating or Cancel'
         let options = {
